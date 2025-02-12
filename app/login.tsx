@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import { loginWarehouseman } from '../services/api';
+import ApiService from './services/api';
 import { router } from 'expo-router';
+import warehousemanStorage from './services/warehousemanStorage';
 
 const Login: React.FC = () => {
     const [secretKey, setSecretKey] = useState('');
 
     const handleLogin = async () => {
-        const result = await loginWarehouseman(secretKey);
+        const result = await ApiService.loginWarehouseman(secretKey);
     
         if (result.success) {
           console.log('Login successful:', result.warehouseman);
-          router.push('/(tabs)/products');
+          await warehousemanStorage.saveWarehouseman(result.warehouseman);
+          
+          router.replace('/(tabs)/products');
         } else {
           Alert.alert('Login Failed', result.error || 'Invalid secret key. Please try again.');
         }
