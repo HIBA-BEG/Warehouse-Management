@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Button } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Modal } from 'react-native';
 import ApiService from '../services/api';
 import { Feather } from '@expo/vector-icons';
 import warehousemanStorage from '../services/warehousemanStorage';
 import { router } from 'expo-router';
+import ProductDetails from '@/components/ui/productDetails';
 
 const Products: React.FC = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [warehouseman, setWarehouseman] = useState<{ name: string, city: string } | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+
+    const [isModalVisible, setModalVisible] = useState(false); 
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -51,6 +55,15 @@ const Products: React.FC = () => {
         return styles.inStockBand;
     };
 
+    const handleProductClick = (product: any) => {
+        setSelectedProduct(product);
+        setModalVisible(true); 
+    };
+
+    const handleCloseDetails = () => {
+        setModalVisible(false); 
+        setSelectedProduct(null); 
+    };
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
@@ -85,6 +98,9 @@ const Products: React.FC = () => {
                         <Text style={styles.addButton}><Feather name="plus" size={14} color="#fff" /> Add product</Text>
                     </TouchableOpacity>
                 </View>
+                {/* {selectedProduct ? (
+                    <ProductDetails product={selectedProduct} onClose={handleCloseDetails} /> 
+                ) : ( */}
                 <View style={styles.productsContainer}>
                     {products.map((product) => (
                         <View key={product.id} style={styles.productCard}>
@@ -92,18 +108,27 @@ const Products: React.FC = () => {
                                 styles.stockStatusBand,
                                 getStockStatusBandStyle(product)
                             ]} />
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleProductClick(product)}>
                                 <Image
                                     source={{ uri: product.image }}
                                     style={styles.productImage}
                                 />
                                 <Text style={styles.productTitle}>{product.name}</Text>
-                                <Text style={styles.productTime}>Price: ${product.price}</Text>
+                                <Text style={styles.productPrice}>Price: ${product.price}</Text>
                             </TouchableOpacity>
                         </View>
                     ))}
                 </View>
-
+                {/* )} */}
+                <Modal
+                    visible={isModalVisible}
+                    animationType="slide"
+                    transparent={true} 
+                >
+                    <View style={styles.modalOverlay}>
+                        <ProductDetails product={selectedProduct} onClose={handleCloseDetails} />
+                    </View>
+                </Modal>
             </View>
 
         </ScrollView>
@@ -221,7 +246,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         marginBottom: 4,
     },
-    productTime: {
+    productPrice: {
         fontSize: 14,
         color: '#666',
     },
@@ -240,6 +265,12 @@ const styles = StyleSheet.create({
     },
     outOfStockBand: {
         backgroundColor: '#E91E63',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

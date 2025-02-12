@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import ApiService from './services/api';
 import { router } from 'expo-router';
 import warehousemanStorage from './services/warehousemanStorage';
