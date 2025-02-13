@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet, Text, Alert, TouchableOpacity } from 'reac
 import ApiService from '../../app/(services)/api';
 import { Feather } from '@expo/vector-icons';
 import warehousemanStorage from '@/app/(services)/warehousemanStorage';
+import { router } from 'expo-router';
 
 const AddProduct: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [name, setName] = useState('');
@@ -56,7 +57,7 @@ const AddProduct: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <TextInput placeholder="Type" value={type} onChangeText={setType} style={styles.input} />
             <View style={styles.barcodeContainer}>
                 <TextInput placeholder="Barcode" value={barcode} onChangeText={setBarcode} style={styles.barCodeInput} />
-                <TouchableOpacity style={styles.scanButton}>
+                <TouchableOpacity style={styles.scanButton} onPress={()=>router.push("/codeBarScanner")}>
                     <Text style={{color: '#fff'}}>Scan Barcode</Text>
                 </TouchableOpacity>
             </View>
