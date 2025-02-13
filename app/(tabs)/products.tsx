@@ -1,42 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Modal } from 'react-native';
-import ApiService from '../services/api';
+import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Modal, RefreshControl } from 'react-native';
+import ApiService from '../(services)/api';
 import { Feather } from '@expo/vector-icons';
-import warehousemanStorage from '../services/warehousemanStorage';
+import warehousemanStorage from '../(services)/warehousemanStorage';
 import { router } from 'expo-router';
-import ProductDetails from '@/components/ui/productDetails';
+import ProductDetails from '@/components/product/productDetails';
+import AddProduct from '@/components/product/addProduct';
 
 const Products: React.FC = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [warehouseman, setWarehouseman] = useState<{ name: string, city: string } | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+    const [isAddProductVisible, setAddProductVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const [isModalVisible, setModalVisible] = useState(false); 
+    const [isModalVisible, setModalVisible] = useState(false);
+
+
+    const loadProducts = async () => {
+        const result = await ApiService.fetchProducts();
+        if (result.success) {
+            setProducts(result.products);
+        } else {
+            console.error(result.error);
+            Alert.alert('Error', 'Failed to load products. Please try again.');
+        }
+        setLoading(false);
+        setRefreshing(false);
+    };
+
+    const checkWarehouseman = async () => {
+        const userData = await warehousemanStorage.getWarehouseman();
+        console.log(userData);
+        if (!userData) {
+            Alert.alert('Login Failed', 'Please login to continue.');
+            router.replace('/');
+            return;
+        }
+        setWarehouseman(userData);
+    }
 
     useEffect(() => {
-        const loadProducts = async () => {
-            const result = await ApiService.fetchProducts();
-            if (result.success) {
-                setProducts(result.products);
-            } else {
-                console.error(result.error);
-            }
-            setLoading(false);
-        };
-
-        const checkWarehouseman = async () => {
-            const userData = await warehousemanStorage.getWarehouseman();
-            console.log(userData);
-            if (!userData) {
-                Alert.alert('Login Failed', 'Please login to continue.');
-                router.replace('/login');
-                return;
-            }
-            setWarehouseman(userData);
-        }
-
-
         checkWarehouseman();
         loadProducts();
     }, []);
@@ -57,19 +62,37 @@ const Products: React.FC = () => {
 
     const handleProductClick = (product: any) => {
         setSelectedProduct(product);
-        setModalVisible(true); 
+        setModalVisible(true);
     };
 
     const handleCloseDetails = () => {
-        setModalVisible(false); 
-        setSelectedProduct(null); 
+        setModalVisible(false);
+        setSelectedProduct(null);
     };
+
+    const handleOpenAddProduct = () => {
+        setAddProductVisible(true);
+    };
+
+    const handleCloseAddProduct = () => {
+        setAddProductVisible(false);
+    };
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        loadProducts();
+    };
+
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+        >
             <View style={styles.header}>
                 <View style={styles.profileSection}>
                     <View style={styles.avatar}>
@@ -94,13 +117,10 @@ const Products: React.FC = () => {
             <View>
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>All products</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={handleOpenAddProduct}>
                         <Text style={styles.addButton}><Feather name="plus" size={14} color="#fff" /> Add product</Text>
                     </TouchableOpacity>
                 </View>
-                {/* {selectedProduct ? (
-                    <ProductDetails product={selectedProduct} onClose={handleCloseDetails} /> 
-                ) : ( */}
                 <View style={styles.productsContainer}>
                     {products.map((product) => (
                         <View key={product.id} style={styles.productCard}>
@@ -119,17 +139,22 @@ const Products: React.FC = () => {
                         </View>
                     ))}
                 </View>
-                {/* )} */}
                 <Modal
                     visible={isModalVisible}
                     animationType="slide"
-                    transparent={true} 
+                    transparent={true}
                 >
                     <View style={styles.modalOverlay}>
                         <ProductDetails product={selectedProduct} onClose={handleCloseDetails} />
                     </View>
                 </Modal>
             </View>
+
+            <Modal visible={isAddProductVisible} animationType="fade" transparent={true}>
+                <View style={styles.modalOverlay}>
+                    <AddProduct onClose={handleCloseAddProduct} />
+                </View>
+            </Modal>
 
         </ScrollView>
     );
@@ -268,7 +293,7 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
     },

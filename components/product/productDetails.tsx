@@ -2,7 +2,27 @@ import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
-const ProductDetails: React.FC<{ product: any; onClose: () => void }> = ({ product, onClose }) => {
+interface Product {
+    name: string;
+    type: string;
+    barcode: string;
+    price: number;
+    supplier: string;
+    image: string;
+    stocks: {
+        name: string;
+        quantity: number;
+        localisation: {
+            city: string;
+        };
+    }[];
+    editedBy: {
+        warehousemanId: number;
+        at: string;
+    }[];
+}
+
+const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ product, onClose }) => {
 
     const getStockStatusBandStyle = (quantity: number) => {
         if (quantity === 0) {

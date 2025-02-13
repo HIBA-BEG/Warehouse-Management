@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import ApiService from './services/api';
+import ApiService from './(services)/api';
 import { router } from 'expo-router';
-import warehousemanStorage from './services/warehousemanStorage';
+import warehousemanStorage from './(services)/warehousemanStorage';
 
 const Login: React.FC = () => {
     const [secretKey, setSecretKey] = useState('');
