@@ -35,14 +35,13 @@ class WarehousemanStorageService {
   async logoutWarehouseman(): Promise<void> {
     try {
       await AsyncStorage.removeItem(this.USER_KEY);
-      router.push('/login');
+      router.push('/');
       console.log('Warehouseman logged out successfully.');
     } catch (error) {
       console.error('Error logging out of warehouseman:', error);
     }
   }
 
- 
 }
 
 export default new WarehousemanStorageService();
