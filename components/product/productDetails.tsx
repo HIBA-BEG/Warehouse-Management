@@ -1,28 +1,13 @@
+import ApiService from '@/app/(services)/api';
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
-
-interface Product {
-    name: string;
-    type: string;
-    barcode: string;
-    price: number;
-    supplier: string;
-    image: string;
-    stocks: {
-        name: string;
-        quantity: number;
-        localisation: {
-            city: string;
-        };
-    }[];
-    editedBy: {
-        warehousemanId: number;
-        at: string;
-    }[];
-}
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, Alert, TextInput, TouchableOpacity } from 'react-native';
+import { Product } from '@/types/product';
+    
 
 const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ product, onClose }) => {
+    const [quantityTo, setQuantityTo] = useState('');
+
 
     const getStockStatusBandStyle = (quantity: number) => {
         if (quantity === 0) {
@@ -31,6 +16,54 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
             return styles.lowStockBand;
         }
         return styles.inStockBand;
+    };
+
+    const handleAddStock = async () => {
+        const quantity = parseInt(quantityTo, 10);
+        if (quantity < 0) {
+            Alert.alert('Error', 'Please enter a valid quantity.');
+            return;
+        }
+        
+        const updatedStock = product.stocks[0].quantity + quantity;
+        try {
+            const response = await ApiService.updateStock(String(product.id), product.stocks[0].id, updatedStock);
+            if (response.success) {
+                Alert.alert('Success', 'Stock updated successfully!');
+                setQuantityTo('');
+                // onClose(); 
+            } else {
+                Alert.alert('Error', response.error || 'Failed to update stock.');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'An unexpected error occurred.');
+        }
+    };
+    
+    const handleRemoveStock = async () => {
+        const quantity = parseInt(quantityTo, 10);
+        if (quantity < 0) {
+            Alert.alert('Error', 'Please enter a valid quantity.');
+            return;
+        }
+        
+        const updatedStock = product.stocks[0].quantity - quantity;
+        if (updatedStock < 0) {
+            Alert.alert('Error', 'Stock cannot be negative.');
+            return;
+        }
+        try {
+            const response = await ApiService.updateStock(String(product.id), product.stocks[0].id, updatedStock);
+            if (response.success) {
+                Alert.alert('Success', 'Stock updated successfully!');
+                setQuantityTo(''); 
+                // onClose();
+            } else {
+                Alert.alert('Error', response.error || 'Failed to update stock.');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'An unexpected error occurred.');
+        }
     };
 
     return (
@@ -50,6 +83,23 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
                     <Text style={styles.stockName}>{stock.name}</Text>
                     <Text>Quantity: {stock.quantity}</Text>
                     <Text>Location: {stock.localisation.city}</Text>
+
+                    <View style={styles.inputContainer}>
+                        <TouchableOpacity onPress={handleRemoveStock}>
+                            <Text>Remove</Text>
+                        </TouchableOpacity>
+                        <TextInput
+                            placeholder="0"
+                            keyboardType="numeric"
+                            value={quantityTo}
+                            onChangeText={setQuantityTo}
+                            style={styles.input}
+                        />
+                        <TouchableOpacity onPress={handleAddStock}>
+                            <Text>Add</Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
             ))}
 
@@ -76,6 +126,20 @@ const styles = StyleSheet.create({
         right: 10,
         color: '#E91E63',
         padding: 10,
+    },
+
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginVertical: 5,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 5,
+        width: 50,
+        textAlign: 'center',
     },
 
     stockStatusBand: {

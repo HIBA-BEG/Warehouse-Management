@@ -13,7 +13,7 @@
         {
           "id": 1999,
           "name": "Gueliz B2",
-          "quantity": 21,
+          "quantity": 11,
           "localisation": {
             "city": "Marrakesh",
             "latitude": 31.628674,
@@ -23,7 +23,7 @@
         {
           "id": 2991,
           "name": "Lazari H2",
-          "quantity": 24,
+          "quantity": 10,
           "localisation": {
             "city": "Oujda",
             "latitude": 34.689404,
@@ -36,7 +36,8 @@
           "warehousemanId": 1333,
           "at": "2025-02-02"
         }
-      ]
+      ],
+      "quantity": "113"
     },
     {
       "id": "2",
@@ -73,7 +74,8 @@
           "warehousemanId": 1444,
           "at": "2025-02-02"
         }
-      ]
+      ],
+      "quantity": "46"
     },
     {
       "id": "3",
