@@ -63,6 +63,46 @@ const ApiService = {
             return { success: false, error: 'Unable to add product.' };
         }
     },
+    
+    async updateStock(productId: string, stockId: number, newQuantity: number) {
+        try {
+            const productResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}`);
+            const product = await productResponse.json();
+    
+            const updatedProduct = {
+                ...product,
+                stocks: product.stocks.map(stock => 
+                    stock.id === stockId 
+                        ? { ...stock, quantity: newQuantity }
+                        : stock
+                )
+            };
+    
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}`, {
+                method: 'PUT', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedProduct),
+            });
+    
+            console.log(` the product id is ${productId} the stock id is ${stockId} the current quantity is ${newQuantity}`);
+    
+            if (response.ok) {
+                const data = await response.json();
+                return { success: true, data };
+            } else {
+                console.log('Error:', response.statusText);
+                return { 
+                    success: false, 
+                    error: response.statusText || 'Failed to update stock'
+                };
+            }
+        } catch (error) {
+            console.error("Error updating stock:", error);
+            return { success: false, error: 'Unable to update product stock.' };
+        }
+    }
 
 };
 

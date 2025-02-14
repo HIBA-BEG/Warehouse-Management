@@ -6,9 +6,11 @@ import warehousemanStorage from '../(services)/warehousemanStorage';
 import { router } from 'expo-router';
 import ProductDetails from '@/components/product/productDetails';
 import AddProduct from '@/components/product/addProduct';
+import { Product } from '@/types/product';
+
 
 const Products: React.FC = () => {
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [warehouseman, setWarehouseman] = useState<{ name: string, city: string } | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -19,15 +21,18 @@ const Products: React.FC = () => {
 
 
     const loadProducts = async () => {
-        const result = await ApiService.fetchProducts();
+        try {
+            const result = await ApiService.fetchProducts();
         if (result.success) {
             setProducts(result.products);
-        } else {
-            console.error(result.error);
-            Alert.alert('Error', 'Failed to load products. Please try again.');
         }
-        setLoading(false);
-        setRefreshing(false);
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'Failed to load products. Please try again.');
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
     };
 
     const checkWarehouseman = async () => {
