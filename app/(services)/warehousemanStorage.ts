@@ -42,6 +42,10 @@ class WarehousemanStorageService {
     }
   }
 
+  async isLoggedIn(): Promise<boolean> {
+    const warehouseman = await this.getWarehouseman();
+    return warehouseman !== null;
+  }
 }
 
 export default new WarehousemanStorageService();

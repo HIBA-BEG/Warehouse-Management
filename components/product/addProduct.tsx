@@ -17,10 +17,10 @@ const AddProduct: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const handleAddProduct = async () => {
         const warehouseman = await warehousemanStorage.getWarehouseman();
         // console.log('warehouseman', warehouseman);
-        
+
         const warehousemanId = warehouseman?.id;
         // console.log('warehousemanId', warehousemanId);
-        
+
         const newProduct = {
             name,
             type,
@@ -36,7 +36,7 @@ const AddProduct: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         try {
             const response = await ApiService.addProduct(newProduct);
             if (response.success) {
-                Alert.alert('Success',   'Product added successfully!');
+                Alert.alert('Success', 'Product added successfully!');
                 onClose();
             } else {
                 Alert.alert('Error', response.error || 'Failed to add product.');
@@ -49,7 +49,7 @@ const AddProduct: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     return (
         <View style={styles.container}>
-            <Feather style={styles.closeButton} name="x-square" size={24} color="#000" onPress={onClose} />
+            <Feather style={styles.closeButton} onPress={onClose} name="x-square" size={24} color="#E91E63" />
 
             <Text style={styles.title}>Add New Product</Text>
 
@@ -57,8 +57,8 @@ const AddProduct: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <TextInput placeholder="Type" value={type} onChangeText={setType} style={styles.input} />
             <View style={styles.barcodeContainer}>
                 <TextInput placeholder="Barcode" value={barcode} onChangeText={setBarcode} style={styles.barCodeInput} />
-                <TouchableOpacity style={styles.scanButton} onPress={()=>router.push("/codeBarScanner")}>
-                    <Text style={{color: '#fff'}}>Scan Barcode</Text>
+                <TouchableOpacity style={styles.scanButton} onPress={() => router.push("/codeBarScanner")}>
+                    <Text style={{ color: '#fff' }}>Scan Barcode</Text>
                 </TouchableOpacity>
             </View>
             <TextInput placeholder="Price" value={price} onChangeText={setPrice} keyboardType="numeric" style={styles.input} />
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        color: '#E91E63',
+        // color: '#E91E63',
         padding: 10,
     },
     title: {
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 12,
         padding: 10,
-        width: '100%'
+        width: '60%'
     },
     input: {
         borderWidth: 1,
