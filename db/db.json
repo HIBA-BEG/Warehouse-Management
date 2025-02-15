@@ -13,7 +13,7 @@
         {
           "id": 1999,
           "name": "Gueliz B2",
-          "quantity": 11,
+          "quantity": 21,
           "localisation": {
             "city": "Marrakesh",
             "latitude": 31.628674,
@@ -23,7 +23,7 @@
         {
           "id": 2991,
           "name": "Lazari H2",
-          "quantity": 10,
+          "quantity": 70,
           "localisation": {
             "city": "Oujda",
             "latitude": 34.689404,
@@ -61,7 +61,7 @@
         {
           "id": 2991,
           "name": "Lazari H2",
-          "quantity": 5,
+          "quantity": 11,
           "localisation": {
             "city": "Oujda",
             "latitude": 34.689404,
@@ -90,66 +90,6 @@
         {
           "warehousemanId": 1444,
           "at": "2025-02-02"
-        }
-      ]
-    },
-    {
-      "id": "c161",
-      "name": "Test",
-      "type": "Idkk",
-      "barcode": "Azertyu",
-      "price": 1427,
-      "supplier": "Hp",
-      "image": "Idķk",
-      "stocks": [
-        {
-          "name": "",
-          "quantity": 0,
-          "localisation": {
-            "city": ""
-          }
-        }
-      ]
-    },
-    {
-      "id": "a61f",
-      "name": "Ggh",
-      "type": "Zrt",
-      "barcode": "E4",
-      "price": 248,
-      "supplier": "Rgy",
-      "image": "Tji",
-      "stocks": [
-        {
-          "name": "",
-          "quantity": 0,
-          "localisation": {
-            "city": ""
-          }
-        }
-      ]
-    },
-    {
-      "id": "2ca7",
-      "name": "Deleniti enim natus ",
-      "type": "Quis porro quas volu",
-      "barcode": "Atque deserunt et qu",
-      "price": 1243,
-      "supplier": "Quia vero quae duis ",
-      "image": "Minus facere quia el",
-      "stocks": [
-        {
-          "name": "",
-          "quantity": 0,
-          "localisation": {
-            "city": ""
-          }
-        }
-      ],
-      "editedBy": [
-        {
-          "warehousemanId": "1444",
-          "at": "2025-02-13T13:51:01.158Z"
         }
       ]
     }

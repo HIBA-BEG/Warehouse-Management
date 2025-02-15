@@ -63,7 +63,7 @@ const ApiService = {
             return { success: false, error: 'Unable to add product.' };
         }
     },
-    
+
     async updateStock(productId: string, stockId: number, newQuantity: number) {
         try {
             const productResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}`);
@@ -102,7 +102,49 @@ const ApiService = {
             console.error("Error updating stock:", error);
             return { success: false, error: 'Unable to update product stock.' };
         }
-    }
+    },
+
+    async addStock(productId: number, quantity: number) {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}/stocks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return { success: true, data };
+            } else {
+                const errorData = await response.json();
+                return { success: false, error: errorData.error || 'Failed to add stock' };
+            }
+        } catch (error) {
+            console.error("Error adding stock:", error);
+            return { success: false, error: 'Unable to add product stock.'};
+        }
+    },
+
+    async deleteStock(productId: number, stockId: number) {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}/stocks/${stockId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                return { success: true };
+            } else {
+                const errorData = await response.json();
+                return { success: false, error: errorData.error || 'Failed to delete stock' };
+            }
+        } catch (error) {
+            console.error("Error deleting stock:", error);
+            return { success: false, error: 'Unable to delete product stock.' };
+        }
+    },
+
 
 };
 

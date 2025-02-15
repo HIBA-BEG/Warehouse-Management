@@ -1,13 +1,21 @@
 import ApiService from '@/app/(services)/api';
 import { Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Alert, TextInput, TouchableOpacity } from 'react-native';
 import { Product } from '@/types/product';
-    
+
 
 const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ product, onClose }) => {
-    const [quantityTo, setQuantityTo] = useState('');
+    const [quantities, setQuantities] = useState<{ [key: number]: string }>({});
 
+    if (!product) {
+        return (
+            <View style={styles.container}>
+                <Feather style={styles.closeButton} name="x-square" size={24} color="#000" onPress={onClose} />
+                <Text style={styles.errorText}>Product not found</Text>
+            </View>
+        );
+    }
 
     const getStockStatusBandStyle = (quantity: number) => {
         if (quantity === 0) {
@@ -18,46 +26,34 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
         return styles.inStockBand;
     };
 
-    const handleAddStock = async () => {
-        const quantity = parseInt(quantityTo, 10);
-        if (quantity < 0) {
+    const handleUpdateStock = async (stockId: number, operation: 'add' | 'remove') => {
+        const quantity = parseInt(quantities[stockId] || '0', 10);
+        if (isNaN(quantity) || quantity < 0) {
             Alert.alert('Error', 'Please enter a valid quantity.');
             return;
         }
-        
-        const updatedStock = product.stocks[0].quantity + quantity;
-        try {
-            const response = await ApiService.updateStock(String(product.id), product.stocks[0].id, updatedStock);
-            if (response.success) {
-                Alert.alert('Success', 'Stock updated successfully!');
-                setQuantityTo('');
-                // onClose(); 
-            } else {
-                Alert.alert('Error', response.error || 'Failed to update stock.');
-            }
-        } catch (error) {
-            Alert.alert('Error', 'An unexpected error occurred.');
-        }
-    };
-    
-    const handleRemoveStock = async () => {
-        const quantity = parseInt(quantityTo, 10);
-        if (quantity < 0) {
-            Alert.alert('Error', 'Please enter a valid quantity.');
+
+        const stock = product.stocks.find((s) => s.id === stockId);
+        if (!stock) {
+            Alert.alert('Error', 'Stock not found.');
             return;
         }
-        
-        const updatedStock = product.stocks[0].quantity - quantity;
+
+        let updatedStock = operation === 'add' ? stock.quantity + quantity : stock.quantity - quantity;
+
         if (updatedStock < 0) {
-            Alert.alert('Error', 'Stock cannot be negative.');
+            Alert.alert('Error', `Not enough stock. Maximum available: ${stock.quantity}`);
             return;
         }
+
         try {
-            const response = await ApiService.updateStock(String(product.id), product.stocks[0].id, updatedStock);
+            const response = await ApiService.updateStock(String(product.id), stockId, updatedStock);
             if (response.success) {
                 Alert.alert('Success', 'Stock updated successfully!');
-                setQuantityTo(''); 
-                // onClose();
+                setQuantities(prev => ({
+                    ...prev,
+                    [stockId]: ''
+                }));
             } else {
                 Alert.alert('Error', response.error || 'Failed to update stock.');
             }
@@ -66,18 +62,24 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
         }
     };
 
+
+
     return (
         <View style={styles.container}>
             <Feather style={styles.closeButton} name="x-square" size={24} color="#000" onPress={onClose} />
             <Text style={styles.title}>{product.name}</Text>
-            <Image source={{ uri: product.image }} style={styles.image} />
+            <Image
+                source={{ uri: product.image }}
+                style={styles.image}
+                onError={(e) => console.log('Image loading error:', e.nativeEvent.error)}
+            />
             <Text style={styles.price}>Price: {product.price} $</Text>
             <Text style={styles.type}>Type: {product.type}</Text>
             <Text style={styles.barcode}>Barcode: {product.barcode}</Text>
             <Text style={styles.supplier}>Supplier: {product.supplier}</Text>
 
             <Text style={styles.stockTitle}>Stocks:</Text>
-            {product.stocks.map((stock: any) => (
+            {product.stocks?.map((stock) => (
                 <View key={stock.id} style={styles.stockContainer}>
                     <View style={[styles.stockStatusBand, getStockStatusBandStyle(stock.quantity)]} />
                     <Text style={styles.stockName}>{stock.name}</Text>
@@ -85,23 +87,34 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
                     <Text>Location: {stock.localisation.city}</Text>
 
                     <View style={styles.inputContainer}>
-                        <TouchableOpacity onPress={handleRemoveStock}>
-                            <Text>Remove</Text>
+                        <TouchableOpacity
+                            style={styles.removeButton}
+                            onPress={() => handleUpdateStock(stock.id, 'remove')}
+                        >
+                            <Text style={styles.removeButtonText}>Remove</Text>
                         </TouchableOpacity>
+
                         <TextInput
                             placeholder="0"
                             keyboardType="numeric"
-                            value={quantityTo}
-                            onChangeText={setQuantityTo}
+                            value={quantities[stock.id] || ''}
+                            onChangeText={(text) => setQuantities(prev => ({
+                                ...prev,
+                                [stock.id]: text
+                            }))}
                             style={styles.input}
                         />
-                        <TouchableOpacity onPress={handleAddStock}>
-                            <Text>Add</Text>
+
+                        <TouchableOpacity
+                            onPress={() => handleUpdateStock(stock.id, 'add')}
+                            style={styles.addButton}
+                        >
+                            <Text style={styles.addButtonText}>Add</Text>
                         </TouchableOpacity>
                     </View>
-
                 </View>
             ))}
+
 
             <Text style={styles.edited}>Edited on {product.editedBy[0]?.at}</Text>
 
@@ -137,9 +150,12 @@ const styles = StyleSheet.create({
     input: {
         borderWidth: 1,
         borderColor: '#ccc',
-        padding: 5,
+        borderRadius: 12,
         width: 50,
         textAlign: 'center',
+        padding: 10,
+        alignItems: 'center',
+        marginBottom: 10,
     },
 
     stockStatusBand: {
@@ -218,6 +234,36 @@ const styles = StyleSheet.create({
         bottom: 10,
         right: 10,
     },
+    addButton: {
+        backgroundColor: '#1B263B',
+        color: 'white',
+        padding: 10,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 10,
+        width: '30%',
+    },
+    addButtonText: {
+        color: 'white',
+    },
+    removeButton: {
+        backgroundColor: '#778DA9',
+        padding: 10,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 10,
+        width: '30%',
+    },
+    removeButtonText: {
+        color: 'white',
+    },
+    errorText: {
+        fontSize: 16,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+
 });
 
 export default ProductDetails;

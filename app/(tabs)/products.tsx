@@ -23,9 +23,9 @@ const Products: React.FC = () => {
     const loadProducts = async () => {
         try {
             const result = await ApiService.fetchProducts();
-        if (result.success) {
-            setProducts(result.products);
-        }
+            if (result.success) {
+                setProducts(result.products);
+            }
         } catch (error) {
             console.error(error);
             Alert.alert('Error', 'Failed to load products. Please try again.');
@@ -49,6 +49,8 @@ const Products: React.FC = () => {
     useEffect(() => {
         checkWarehouseman();
         loadProducts();
+        // const interval = setInterval(loadProducts,1000);
+        // return ()=> clearInterval(interval);
     }, []);
 
     const getStockStatusBandStyle = (product: any) => {
@@ -149,9 +151,11 @@ const Products: React.FC = () => {
                     animationType="slide"
                     transparent={true}
                 >
-                    <View style={styles.modalOverlay}>
-                        <ProductDetails product={selectedProduct} onClose={handleCloseDetails} />
-                    </View>
+                    {selectedProduct && (
+                        <View style={styles.modalOverlay}>
+                            <ProductDetails product={selectedProduct} onClose={handleCloseDetails} />
+                        </View>
+                    )}
                 </Modal>
             </View>
 
@@ -214,7 +218,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     productCard: {
-        width: '48%',
+        width: '47%',
         marginBottom: 20,
         padding: 16,
         borderWidth: 1,
