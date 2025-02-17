@@ -1,23 +1,4 @@
-interface Product {
-    name: string;
-    type: string;
-    barcode: string;
-    price: number;
-    supplier: string;
-    image: string;
-    stocks: {
-        name: string;
-        quantity: number;
-        localisation: {
-            city: string;
-        };
-    }[];
-    editedBy: {
-        warehousemanId: number;
-        at: string;
-    }[];
-}
-
+import { Product } from "../../types/product";
 const ApiService = {
     async loginWarehouseman(secretKey: string) {
         try {
@@ -46,8 +27,6 @@ const ApiService = {
     },
 
     async addProduct(product: Product) {    
-        // const dbPath = path.join(__dirname, '../../db/db.json');
-
         try {
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products`, {
                 method: 'POST',
@@ -66,18 +45,20 @@ const ApiService = {
 
     async updateStock(productId: string, stockId: number, newQuantity: number) {
         try {
+            
             const productResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}`);
             const product = await productResponse.json();
-    
+            console.log('fchfx',product);
+            
             const updatedProduct = {
                 ...product,
-                stocks: product.stocks.map(stock => 
+                stocks: product.stocks.map((stock:any) => 
                     stock.id === stockId 
-                        ? { ...stock, quantity: newQuantity }
-                        : stock
-                )
-            };
-    
+                ? { ...stock, quantity: newQuantity }
+                : stock
+            )
+        };
+        
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}`, {
                 method: 'PUT', 
                 headers: {

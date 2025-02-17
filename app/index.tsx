@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import warehousemanStorage from './(services)/warehousemanStorage';
 
 const Login: React.FC = () => {
-    const [secretKey, setSecretKey] = useState('');
+    const [secretKey, setSecretKey] = useState('AH90907J');
 
     const handleLogin = async () => {
         const result = await ApiService.loginWarehouseman(secretKey);

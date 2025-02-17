@@ -3,21 +3,29 @@ import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert, To
 import ApiService from '../(services)/api';
 import { Feather } from '@expo/vector-icons';
 import warehousemanStorage from '../(services)/warehousemanStorage';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import ProductDetails from '@/components/product/productDetails';
 import AddProduct from '@/components/product/addProduct';
 import { Product } from '@/types/product';
-
 
 const Products: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [warehouseman, setWarehouseman] = useState<{ name: string, city: string } | null>(null);
-    const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isAddProductVisible, setAddProductVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-
     const [isModalVisible, setModalVisible] = useState(false);
+
+    const params = useLocalSearchParams();
+    const barcode = params.barcode;
+
+    useEffect(() => {
+        if (barcode) {
+            console.log('Received barcode:', barcode);
+            setAddProductVisible(true);
+        }
+    }, [barcode]);
 
 
     const loadProducts = async () => {
@@ -25,6 +33,12 @@ const Products: React.FC = () => {
             const result = await ApiService.fetchProducts();
             if (result.success) {
                 setProducts(result.products);
+                if (selectedProduct) {
+                    const updatedProduct = result.products.find((p: Product) => p.id === selectedProduct.id);
+                    if (updatedProduct) {
+                        setSelectedProduct(updatedProduct);
+                    }
+                }
             }
         } catch (error) {
             console.error(error);
@@ -49,11 +63,10 @@ const Products: React.FC = () => {
     useEffect(() => {
         checkWarehouseman();
         loadProducts();
-        // const interval = setInterval(loadProducts,1000);
-        // return ()=> clearInterval(interval);
     }, []);
 
-    const getStockStatusBandStyle = (product: any) => {
+
+    const getStockStatusBandStyle = (product: Product) => {
         if (product.stocks.length === 0) {
             return styles.outOfStockBand;
         }
@@ -67,7 +80,7 @@ const Products: React.FC = () => {
         return styles.inStockBand;
     };
 
-    const handleProductClick = (product: any) => {
+    const handleProductClick = (product: Product) => {
         setSelectedProduct(product);
         setModalVisible(true);
     };
@@ -83,6 +96,7 @@ const Products: React.FC = () => {
 
     const handleCloseAddProduct = () => {
         setAddProductVisible(false);
+        loadProducts();
     };
 
     const onRefresh = () => {
@@ -90,12 +104,17 @@ const Products: React.FC = () => {
         loadProducts();
     };
 
+    const handleStockUpdate = async () => {
+        await loadProducts();
+    };
+
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
 
     return (
-        <ScrollView style={styles.container}
+        <ScrollView
+            style={styles.container}
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
@@ -113,7 +132,12 @@ const Products: React.FC = () => {
                         <Text style={styles.status}>{warehouseman?.city}</Text>
                     </View>
                 </View>
-                <Feather name="log-out" size={24} color="#000" onPress={() => warehousemanStorage.logoutWarehouseman()} />
+                <Feather
+                    name="log-out"
+                    size={24}
+                    color="#000"
+                    onPress={() => warehousemanStorage.logoutWarehouseman()}
+                />
             </View>
 
             <View style={styles.searchBar}>
@@ -125,16 +149,20 @@ const Products: React.FC = () => {
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>All products</Text>
                     <TouchableOpacity onPress={handleOpenAddProduct}>
-                        <Text style={styles.addButton}><Feather name="plus" size={14} color="#fff" /> Add product</Text>
+                        <Text style={styles.addButton}>
+                            <Feather name="plus" size={14} color="#fff" /> Add product
+                        </Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.productsContainer}>
                     {products.map((product) => (
                         <View key={product.id} style={styles.productCard}>
-                            <View style={[
-                                styles.stockStatusBand,
-                                getStockStatusBandStyle(product)
-                            ]} />
+                            <View
+                                style={[
+                                    styles.stockStatusBand,
+                                    getStockStatusBandStyle(product)
+                                ]}
+                            />
                             <TouchableOpacity onPress={() => handleProductClick(product)}>
                                 <Image
                                     source={{ uri: product.image }}
@@ -146,6 +174,7 @@ const Products: React.FC = () => {
                         </View>
                     ))}
                 </View>
+
                 <Modal
                     visible={isModalVisible}
                     animationType="slide"
@@ -153,18 +182,25 @@ const Products: React.FC = () => {
                 >
                     {selectedProduct && (
                         <View style={styles.modalOverlay}>
-                            <ProductDetails product={selectedProduct} onClose={handleCloseDetails} />
+                            <ProductDetails
+                                product={selectedProduct}
+                                onClose={handleCloseDetails}
+                                onStockUpdate={handleStockUpdate}
+                            />
                         </View>
                     )}
                 </Modal>
             </View>
 
-            <Modal visible={isAddProductVisible} animationType="fade" transparent={true}>
+            <Modal
+                visible={isAddProductVisible}
+                animationType="fade"
+                transparent={true}
+            >
                 <View style={styles.modalOverlay}>
-                    <AddProduct onClose={handleCloseAddProduct} />
+                    <AddProduct onClose={handleCloseAddProduct} initialBarcode={barcode || ''} />
                 </View>
             </Modal>
-
         </ScrollView>
     );
 };
