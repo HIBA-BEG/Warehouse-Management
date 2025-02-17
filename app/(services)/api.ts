@@ -126,6 +126,21 @@ const ApiService = {
         }
     },
 
+    async checkBarcodeExists(barcode: string) {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products?barcode=${barcode}`);
+            const products = await response.json();
+            
+            if (products && products.length > 0) {
+                return { success: true, product: products[0] };
+            }
+            return { success: true, product: null };
+        } catch (error) {
+            console.error('Error checking barcode:', error);
+            return { success: false, error: 'Unable to check barcode.' };
+        }
+    },
+
 
 };
 
