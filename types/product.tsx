@@ -12,6 +12,8 @@ export interface Product {
         quantity: number;
         localisation: {
             city: string;
+            latitude: number;
+            longitude: number;
         };
     }[];
     editedBy: {

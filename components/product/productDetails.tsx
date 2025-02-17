@@ -1,17 +1,28 @@
-import ApiService from '@/app/(services)/api';
-import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Alert, TextInput, TouchableOpacity } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import ApiService from '@/app/(services)/api';
 import { Product } from '@/types/product';
 
+interface ProductDetailsProps {
+    product: Product;
+    onClose: () => void;
+    onStockUpdate: () => Promise<void>;
+}
 
-const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ product, onClose }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onStockUpdate }) => {
     const [quantities, setQuantities] = useState<{ [key: number]: string }>({});
 
     if (!product) {
         return (
             <View style={styles.container}>
-                <Feather style={styles.closeButton} name="x-square" size={24} color="#000" onPress={onClose} />
+                <Feather 
+                    style={styles.closeButton} 
+                    name="x-square" 
+                    size={24} 
+                    color="#000" 
+                    onPress={onClose} 
+                />
                 <Text style={styles.errorText}>Product not found</Text>
             </View>
         );
@@ -54,19 +65,26 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
                     ...prev,
                     [stockId]: ''
                 }));
+               
+                await onStockUpdate();
             } else {
                 Alert.alert('Error', response.error || 'Failed to update stock.');
             }
         } catch (error) {
+            console.error(error);
             Alert.alert('Error', 'An unexpected error occurred.');
         }
     };
 
-
-
     return (
         <View style={styles.container}>
-            <Feather style={styles.closeButton} name="x-square" size={24} color="#000" onPress={onClose} />
+            <Feather 
+                style={styles.closeButton} 
+                name="x-square" 
+                size={24} 
+                color="#000" 
+                onPress={onClose} 
+            />
             <Text style={styles.title}>{product.name}</Text>
             <Image
                 source={{ uri: product.image }}
@@ -81,10 +99,15 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
             <Text style={styles.stockTitle}>Stocks:</Text>
             {product.stocks?.map((stock) => (
                 <View key={stock.id} style={styles.stockContainer}>
-                    <View style={[styles.stockStatusBand, getStockStatusBandStyle(stock.quantity)]} />
+                    <View 
+                        style={[
+                            styles.stockStatusBand, 
+                            getStockStatusBandStyle(stock.quantity)
+                        ]} 
+                    />
                     <Text style={styles.stockName}>{stock.name}</Text>
                     <Text>Quantity: {stock.quantity}</Text>
-                    <Text>Location: {stock.localisation.city}</Text>
+                    <Text>Location: {stock.localisation?.city || 'Unknown'}</Text>
 
                     <View style={styles.inputContainer}>
                         <TouchableOpacity
@@ -115,13 +138,12 @@ const ProductDetails: React.FC<{ product: Product; onClose: () => void }> = ({ p
                 </View>
             ))}
 
-
-            <Text style={styles.edited}>Edited on {product.editedBy[0]?.at}</Text>
-
+            <Text style={styles.edited}>
+                Edited on {product.editedBy[0]?.at}
+            </Text>
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         padding: 20,
