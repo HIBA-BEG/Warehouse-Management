@@ -264,6 +264,34 @@
           "at": "2025-02-17T16:25:53.902Z"
         }
       ]
+    },
+    {
+      "id": 1739822357785,
+      "name": "Ain saiss",
+      "type": "Water",
+      "barcode": "6111128000224",
+      "price": 1,
+      "supplier": "Hdhej",
+      "image": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FWarehouseManagement-6ced7022-bf93-46b3-9e5c-b760691c759c/ImagePicker/c7091360-e1e7-4232-897c-edecd0159cf6.png",
+      "stocks": [
+        {
+          "id": 1739822491135,
+          "name": "Adsl",
+          "quantity": 50,
+          "localisation": {
+            "city": "Asfi",
+            "latitude": 36,
+            "longitude": 73,
+            "id": 1739822490641
+          }
+        }
+      ],
+      "editedBy": [
+        {
+          "warehousemanId": "1333",
+          "at": "2025-02-17T20:01:30.582Z"
+        }
+      ]
     }
   ],
   "warehousemans": [

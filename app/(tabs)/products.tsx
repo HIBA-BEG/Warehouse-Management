@@ -19,6 +19,8 @@ const Products: React.FC = () => {
 
     const params = useLocalSearchParams();
     const barcode = params.barcode;
+    const productId = params.productId;
+    const showDetails = params.showDetails;
 
     useEffect(() => {
         if (barcode) {
@@ -27,6 +29,15 @@ const Products: React.FC = () => {
         }
     }, [barcode]);
 
+    useEffect(() => {
+        if (productId && showDetails === "true" && products.length > 0) {
+            const product = products.find(p => p.id.toString() === productId);
+            if (product) {
+                setSelectedProduct(product);
+                setModalVisible(true);
+            }
+        }
+    }, [productId, showDetails, products]);
 
     const loadProducts = async () => {
         try {
