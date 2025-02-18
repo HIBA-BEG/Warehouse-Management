@@ -6,7 +6,7 @@ import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Feather } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -40,13 +40,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Feather size={24} name="home" color={color} />,
         }}
       />
-      {/* <Tabs.Screen
-        name="screen"
+      <Tabs.Screen
+        name="scanner"
         options={{
-          title: 'Screen',
-          tabBarIcon: ({ color }) => <Feather size={24} name="home" color={color} />,
+          title: 'Scanner',
+          tabBarIcon: ({ color }) => <AntDesign size={24} name="barcode" color={color} />,
         }}
-      /> */}
+      />
 
     </Tabs>
   );
