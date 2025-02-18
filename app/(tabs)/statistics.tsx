@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native"
 import ApiService from "../(services)/api"
-import { Statistics } from "../../types/Statistics"
+import { Statistics } from "../../types/statistics"
 
 export default function StatisticsScreen() {
     const [statistics, setStatistics] = useState<Statistics | null>(null);

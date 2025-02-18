@@ -48,7 +48,7 @@ const ApiService = {
             
             const productResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${productId}`);
             const product = await productResponse.json();
-            console.log('fchfx',product);
+            // console.log('fchfx',product);
             
             const updatedProduct = {
                 ...product,
