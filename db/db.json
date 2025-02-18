@@ -130,9 +130,9 @@
           "at": "2025-02-17T20:01:30.582Z"
         }
       ]
-    }, 
+    },
     {
-      "id": 1739878567292,
+      "id": "1739878567292",
       "name": "Hiba",
       "type": "Yyy",
       "barcode": "356",
@@ -156,6 +156,34 @@
         {
           "warehousemanId": "1333",
           "at": "2025-02-18T11:36:32.803Z"
+        }
+      ]
+    },
+    {
+      "id": "1739896066310",
+      "name": "Sidi Ali",
+      "type": "Water",
+      "barcode": "6111035002175",
+      "price": 5,
+      "supplier": "Cocacola",
+      "image": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FWarehouseManagement-6ced7022-bf93-46b3-9e5c-b760691c759c/ImagePicker/6d9e1431-e864-4631-a641-a31f8e368ca9.jpeg",
+      "stocks": [
+        {
+          "id": 1739896165577,
+          "name": "Keshma",
+          "quantity": 800,
+          "localisation": {
+            "city": "Marrakech ",
+            "latitude": 0,
+            "longitude": 0,
+            "id": 1739896165908
+          }
+        }
+      ],
+      "editedBy": [
+        {
+          "warehousemanId": "1333",
+          "at": "2025-02-18T16:29:25.311Z"
         }
       ]
     }
