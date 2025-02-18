@@ -182,7 +182,7 @@
       ]
     },
     {
-      "id": 1739808421556,
+      "id": "1739808421556",
       "name": "Ggh",
       "type": "Wd",
       "barcode": "357",
@@ -210,7 +210,7 @@
       ]
     },
     {
-      "id": 1739808850558,
+      "id": "1739808850558",
       "name": "Aazzz",
       "type": "Ttt",
       "barcode": "467",
@@ -238,7 +238,7 @@
       ]
     },
     {
-      "id": 1739809541319,
+      "id": "1739809541319",
       "name": "Tty",
       "type": "Ggg",
       "barcode": "6111252420332",
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "id": 1739822357785,
+      "id": "1739822357785",
       "name": "Ain saiss",
       "type": "Water",
       "barcode": "6111128000224",
@@ -290,6 +290,34 @@
         {
           "warehousemanId": "1333",
           "at": "2025-02-17T20:01:30.582Z"
+        }
+      ]
+    },
+    {
+      "id": 1739878567292,
+      "name": "Hiba",
+      "type": "Yyy",
+      "barcode": "356",
+      "price": 2,
+      "supplier": "Ttt",
+      "image": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252FWarehouseManagement-6ced7022-bf93-46b3-9e5c-b760691c759c/ImagePicker/47a153fa-2e09-4e9c-bdbf-dfc8fe44dc7e.png",
+      "stocks": [
+        {
+          "id": 1739878592840,
+          "name": "",
+          "quantity": 0,
+          "localisation": {
+            "city": "",
+            "latitude": 0,
+            "longitude": 0,
+            "id": 1739878593752
+          }
+        }
+      ],
+      "editedBy": [
+        {
+          "warehousemanId": "1333",
+          "at": "2025-02-18T11:36:32.803Z"
         }
       ]
     }

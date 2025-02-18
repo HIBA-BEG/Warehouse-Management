@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Modal, RefreshControl } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import ApiService from '../(services)/api';
 import { Feather } from '@expo/vector-icons';
 import warehousemanStorage from '../(services)/warehousemanStorage';
@@ -7,6 +7,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import ProductDetails from '@/components/product/productDetails';
 import AddProduct from '@/components/product/addProduct';
 import { Product } from '@/types/product';
+import { FlatList, TextInput } from 'react-native-gesture-handler';
+
+type SortBy = 'default' | 'name' | 'stock' | 'price';
+type SortOrder = 'asc' | 'desc';
 
 const Products: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -16,6 +20,10 @@ const Products: React.FC = () => {
     const [isAddProductVisible, setAddProductVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState<SortBy>('default');
+    const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
 
     const params = useLocalSearchParams();
     const barcode = params.barcode;
@@ -76,6 +84,47 @@ const Products: React.FC = () => {
         loadProducts();
     }, []);
 
+    const getSortedProducts = () => {
+        let filtered = products.filter(product =>
+            product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        if (sortBy === 'default') return filtered;
+
+        return filtered.sort((a, b) => {
+            let valueA, valueB;
+
+            switch (sortBy) {
+                case 'name':
+                    valueA = a.name.toLowerCase();
+                    valueB = b.name.toLowerCase();
+                    break;
+                case 'price':
+                    valueA = a.price;
+                    valueB = b.price;
+                    break;
+                case 'stock':
+                    valueA = a.stocks.map((item: any) => item.quantity);
+                    valueB = b.stocks.map((item: any) => item.quantity);
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1;
+            if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const handleSortPress = (option: SortBy) => {
+        if (sortBy === option) {
+            setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(option);
+            setSortOrder('asc');
+        }
+    };
 
     const getStockStatusBandStyle = (product: Product) => {
         if (product.stocks.length === 0) {
@@ -124,12 +173,7 @@ const Products: React.FC = () => {
     }
 
     return (
-        <ScrollView
-            style={styles.container}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
+        <View style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.profileSection}>
                     <View style={styles.avatar}>
@@ -153,7 +197,33 @@ const Products: React.FC = () => {
 
             <View style={styles.searchBar}>
                 <Feather name="search" size={20} color="#666" />
-                <Text style={styles.searchText}>Search</Text>
+                <TextInput
+                    style={styles.searchText}
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery} />
+            </View>
+
+            <View style={styles.sortContainer}>
+                <Text style={styles.sortLabel}>Sort by:</Text>
+                <TouchableOpacity
+                    style={[styles.sortButton, sortBy === 'name' && styles.activeSort]}
+                    onPress={() => handleSortPress('name')}
+                >
+                    <Text style={styles.sortText}>Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.sortButton, sortBy === 'price' && styles.activeSort]}
+                    onPress={() => handleSortPress('price')}
+                >
+                    <Text style={styles.sortText}>Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.sortButton, sortBy === 'stock' && styles.activeSort]}
+                    onPress={() => handleSortPress('stock')}
+                >
+                    <Text style={styles.sortText}>Stock {sortBy === 'stock' && (sortOrder === 'asc' ? '↑' : '↓')}</Text>
+                </TouchableOpacity>
             </View>
 
             <View>
@@ -164,26 +234,6 @@ const Products: React.FC = () => {
                             <Feather name="plus" size={14} color="#fff" /> Add product
                         </Text>
                     </TouchableOpacity>
-                </View>
-                <View style={styles.productsContainer}>
-                    {products.map((product) => (
-                        <View key={product.id} style={styles.productCard}>
-                            <View
-                                style={[
-                                    styles.stockStatusBand,
-                                    getStockStatusBandStyle(product)
-                                ]}
-                            />
-                            <TouchableOpacity onPress={() => handleProductClick(product)}>
-                                <Image
-                                    source={{ uri: product.image }}
-                                    style={styles.productImage}
-                                />
-                                <Text style={styles.productTitle}>{product.name}</Text>
-                                <Text style={styles.productPrice}>Price: ${product.price}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
                 </View>
 
                 <Modal
@@ -212,7 +262,34 @@ const Products: React.FC = () => {
                     <AddProduct onClose={handleCloseAddProduct} initialBarcode={barcode || ''} />
                 </View>
             </Modal>
-        </ScrollView>
+
+
+            <FlatList
+                data={getSortedProducts()}
+                keyExtractor={(item) => item.id.toString()}
+                numColumns={2}
+                contentContainerStyle={styles.productsContainer}
+                columnWrapperStyle={styles.columnWrapper}
+                renderItem={({ item }) => (
+                    <View key={item.id} style={styles.productCard}>
+                        <View
+                            style={[
+                                styles.stockStatusBand,
+                                getStockStatusBandStyle(item)
+                            ]}
+                        />
+                        <TouchableOpacity onPress={() => handleProductClick(item)}>
+                            <Image
+                                source={{ uri: item.image }}
+                                style={styles.productImage}
+                            />
+                            <Text style={styles.productTitle}>{item.name}</Text>
+                            <Text style={styles.productPrice}>Price: ${item.price}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            />
+        </View>
     );
 };
 
@@ -255,8 +332,7 @@ const styles = StyleSheet.create({
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 16,
-        padding: 12,
+        padding: 6,
         backgroundColor: '#F5F5F5',
         borderRadius: 12,
     },
@@ -265,9 +341,9 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     productCard: {
-        width: '47%',
-        marginBottom: 20,
-        padding: 16,
+        width: '48%',
+        marginBottom: 16,
+        padding: 12,
         borderWidth: 1,
         borderColor: '#E0E0E0',
         // borderRadius: 8,
@@ -276,6 +352,11 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'relative',
     },
+
+    columnWrapper: {
+        justifyContent: 'space-between',
+    },
+
     image: {
         width: '100%',
         height: 200,
@@ -311,10 +392,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 8,
     },
+
     productsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 14,
+        padding: 8,
     },
     productImage: {
         width: '100%',
@@ -352,6 +432,39 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+
+    sortContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 8,
+        backgroundColor: '#F5F5F5',
+        marginTop: 4,
+        marginBottom: 16,
+        borderRadius: 12,
+    },
+    sortLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginRight: 10,
+        color: '#333',
+    },
+    sortButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        backgroundColor: '#778DA9',
+        marginHorizontal: 4,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    activeSort: {
+        backgroundColor: '#1B263B',
+    },
+    sortText: {
+        fontSize: 14,
+        color: '#fff',
     },
 });
 
