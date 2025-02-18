@@ -141,6 +141,38 @@ const ApiService = {
         }
     },
 
+    async fetchStatistics() {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products`);
+            const products = await response.json();
+
+            const totalProducts = products.length;
+            let totalStock = 0;
+            let totalValue = 0;
+
+            products.forEach((product: any) => {
+                const productStock = product.stocks.reduce((sum: number, stock: any) => sum + stock.quantity, 0);
+                totalStock += productStock;
+
+                totalValue += product.price * productStock;
+            });
+
+            const averagePrice = totalValue / totalStock;
+
+            return {
+                success: true,
+                statistics: {
+                    totalProducts,
+                    totalStock,
+                    averagePrice,
+                    totalValue,
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching statistics:', error);
+            return { success: false, error: 'Unable to fetch statistics.' };
+        }
+    }
 
 };
 
