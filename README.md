@@ -1,50 +1,126 @@
-# Welcome to your Expo app 👋
+# Stock Management Application
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 📋 Project Overview
+A retail store aims to modernize and simplify its inventory management by providing warehouse staff with an intuitive application. This solution utilizes barcode scanning technology and manual input options to streamline stock management operations.
 
-## Get started
+## 🎯 Project Context
+The application is designed to:
+- Enable rapid stock management through barcode scanning and manual entry
+- Provide real-time product tracking with stock adjustment capabilities
+- Facilitate easy addition of new products through an interactive form
+- Optimize inventory management while reducing human error
 
-1. Install dependencies
+## ✨ Key Features
 
-   ```bash
-   npm install
-   ```
+### 1. Authentication
+- Secure access through personal secret key for each user
 
-2. Start the app
+### 2. Product Management
+#### Product Identification
+- Integrated barcode scanner using expo-barcode-scanner
+- Manual barcode entry option as backup
 
-   ```bash
-    npx expo start
-   ```
+#### Database Verification
+For Existing Products:
+- Add or remove quantities in warehouse
+- Display product information (name, type, price, available quantity per warehouse)
 
-In the output, you'll find options to open the app in a
+For New Products:
+- Creation form with fields:
+  - Name
+  - Type
+  - Price
+  - Supplier
+  - Initial quantity
+  - Product image 
+  - Warehouse location
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 3. Product Listing
+#### Detailed Display
+- Product information (name, type, price, quantity, stock status)
+- Editor information
+- Visual indicators:
+  - Red for out-of-stock items
+  - Yellow for low stock items (<10 units)
+  - Green for available stock (>10 units)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+#### Available Actions
+- "Restock" button to increase quantity
+- "Unload" button to decrease units
 
-## Get a fresh project
+### 4. Advanced Features
+#### Search and Filter
+- Search by name, type, price, or supplier
+- Dynamic sorting (ascending/descending):
+  - Price
+  - Alphabetical name
+  - Quantity
 
-When you're ready, run:
+### 5. Statistics Dashboard
+- Total product count
+- Total cities count
+- Out-of-stock products
+- Total stock value
 
+### 6. Data Management
+- PDF report export functionality using expo-print
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v14 or higher)
+- npm 
+- Expo CLI
+- A mobile device or emulator
+
+### Installation
+
+1. Clone the repository
 ```bash
-npm run reset-project
+git clone https://github.com/HIBA-BEG/Warehouse-Management.git
+cd Warehouse-Management
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies
+```bash
+npm install
+```
 
-## Learn more
+3. Install Expo CLI globally (if not already installed)
+```bash
+npm install -g expo-cli
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+4. Set up the backend
+```bash
+# Install json-server globally
+npm install -g json-server
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Start the json-server 
+npx json-server db.json
+```
 
-## Join the community
+5. Start the Expo development server
+```bash
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+### Mobile Setup
+1. Install the Expo Go app on your mobile device:
+   - [Android Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
+   - [iOS App Store](https://apps.apple.com/app/expo-go/id982107779)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+2. Scan the QR code from your terminal using:
+   - Android: Expo Go app
+   - iOS: Camera app
+
+### Environment Setup
+1. Create a `.env` file in the root directory
+```bash
+cp .env.example .env
+```
+
+2. Update the `.env` file with your configuration:
+```
+EXPO_PUBLIC_API_URL=http://localhost:3000
+```
